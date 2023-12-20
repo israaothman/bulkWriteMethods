@@ -11,13 +11,33 @@ const db = mongoose.connection;
 // Check MongoDB connection
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', () => {
-  console.log('Connected to MongoDB');
+    console.log('Connected to MongoDB');
 });
 
+const bulk = db.collection('students').initializeUnorderedBulkOp();
+
+const bulkMethods = () => {
+    bulk.insert({
+        name: 'Ahmad Othman',
+        age: 25,
+        city: 'Amman',
+        hobbies: ['reading']
+    });
+
+    bulk.find({ name: "Ahmad Othman" }).update({ $set: { age: 30 } });
+
+    bulk.find({ name: "Khaled" }).upsert().update({ $set: { age: 16 } });
+
+    bulk.find({ name: "Ahmad Othman" }).remove();
+
+    bulk.execute();
+};
+
 app.get('/', (req, res) => {
-  res.send('Hello, Node.js and MongoDB!');
+    bulkMethods();
+    res.send('all done check your db ');
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
 });
